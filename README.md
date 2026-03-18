@@ -36,7 +36,7 @@ Go to http://localhost:9021/clusters using as user superUser and password superU
 Execute:
 
 ```bash
-docker-compose exec connect /bin/bash
+docker compose exec connect /bin/bash
 ```
 
 Disable broker side schema id validation:
