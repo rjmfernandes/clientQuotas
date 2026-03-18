@@ -14,7 +14,7 @@ Navigate to the cp-demo directory and switch to the Confluent Platform release b
 
 ```bash
 cd cp-demo
-git checkout 7.5.3-post
+git checkout 8.1.0-post
 ```
 
 To run cp-demo the first time with defaults, run the following command. The very first run downloads all the required Docker images (~15 minutes) and sets up the environment (~5 minutes).
@@ -26,31 +26,10 @@ To run cp-demo the first time with defaults, run the following command. The very
 Verify the status of the Docker containers show Up state.
 
 ```bash
-docker-compose ps
+docker compose ps
 ```
 
-Your output should resemble:
 
-```
-           Name                          Command                  State                                           Ports
-------------------------------------------------------------------------------------------------------------------------------------------------------------
-connect                       bash -c sleep 10 && cp /us ...   Up             0.0.0.0:8083->8083/tcp, 9092/tcp
-control-center                /etc/confluent/docker/run        Up (healthy)   0.0.0.0:9021->9021/tcp, 0.0.0.0:9022->9022/tcp
-elasticsearch                 /bin/bash bin/es-docker          Up             0.0.0.0:9200->9200/tcp, 0.0.0.0:9300->9300/tcp
-kafka1                        bash -c if [ ! -f /etc/kaf ...   Up (healthy)   0.0.0.0:10091->10091/tcp, 0.0.0.0:11091->11091/tcp, 0.0.0.0:12091->12091/tcp,
-                                                                              0.0.0.0:8091->8091/tcp, 0.0.0.0:9091->9091/tcp, 9092/tcp
-kafka2                        bash -c if [ ! -f /etc/kaf ...   Up (healthy)   0.0.0.0:10092->10092/tcp, 0.0.0.0:11092->11092/tcp, 0.0.0.0:12092->12092/tcp,
-                                                                              0.0.0.0:8092->8092/tcp, 0.0.0.0:9092->9092/tcp
-kibana                        /bin/sh -c /usr/local/bin/ ...   Up             0.0.0.0:5601->5601/tcp
-ksqldb-cli                    /bin/sh                          Up
-ksqldb-server                 /etc/confluent/docker/run        Up (healthy)   0.0.0.0:8088->8088/tcp
-openldap                      /container/tool/run --copy ...   Up             0.0.0.0:389->389/tcp, 636/tcp
-restproxy                     /etc/confluent/docker/run        Up             8082/tcp, 0.0.0.0:8086->8086/tcp
-schemaregistry                /etc/confluent/docker/run        Up             8081/tcp, 0.0.0.0:8085->8085/tcp
-streams-demo                  /app/start.sh                    Up             9092/tcp
-tools                         /bin/bash                        Up
-zookeeper                     /etc/confluent/docker/run        Up (healthy)   0.0.0.0:2181->2181/tcp, 2888/tcp, 3888/tcp
-```
 
 Go to http://localhost:9021/clusters using as user superUser and password superUser, and on the topic users edit the configuration settings changing  confluent_value_schema_validation to false.
 
@@ -60,6 +39,18 @@ Execute:
 docker-compose exec connect /bin/bash
 ```
 
+Disable broker side schema id validation:
+
+```shell
+kafka-configs \
+  --bootstrap-server kafka1:9091 \
+  --alter \
+  --topic users \
+  --add-config 'confluent.value.schema.validation=false' \
+  --command-config /etc/kafka/secrets/client_sasl_plain.config
+```
+
+After that:
 
 ```bash
 tee -a ./config2.properties <<EOF
